@@ -14,9 +14,9 @@ const App = createStackNavigator({
   },
   Detail: {
     screen: Detail,
-    navigationOptions: {
-      title: 'Detail',
-    }
+    navigationOptions:　({navigation}) => ({
+      title: navigation.state.params.item.full_name,
+    })
   }},
   {
     initialRouteName: 'Home',

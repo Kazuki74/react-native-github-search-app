@@ -6,6 +6,8 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  TextInput,
+  Image,
 } from 'react-native';
 
 export default class App extends Component<{}> {
@@ -16,12 +18,12 @@ export default class App extends Component<{}> {
       items: [],
       page: 0,
       refreshing: false,
+      text: "",
     };
   }
   fetchRepositories(refreshing = false) {
     const newPage = refreshing ? 1 : this.state.page + 1;
-    const url = `https://api.github.com/search/repositories?q=react&page=${newPage}`
-    console.log(newPage)
+    const url = `https://api.github.com/search/repositories?q=${this.state.text}&page=${newPage}`
     fetch(url)
     .then(response => response.json())
     .then(({items}) => {
@@ -40,14 +42,24 @@ export default class App extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => this.fetchRepositories()}>
-          <Text>Fetch</Text>
-        </TouchableOpacity>
+        <View style={styles.inputWrapper}>
+          <TextInput style={styles.input} onChangeText={(text) => this.setState({text})}/>
+          <TouchableOpacity onPress={() => this.fetchRepositories(true)}>
+            <Text style={styles.searchText}>search</Text>
+          </TouchableOpacity>
+        </View>
         <FlatList
           data={this.state.items}
           renderItem={({item, index}) =>
-            <TouchableOpacity onPress={() => this.navigateToDetail(item)}>
-              <Text style={styles.text}>{item.full_name}</Text>
+            <TouchableOpacity style={styles.searchResult} onPress={() => this.navigateToDetail(item)}>
+              <Text style={styles.itemName}>{item.full_name}</Text>
+              <View style={styles.ownerData}>
+                <Image
+                  source={{ uri: item.owner.avatar_url }}
+                  style={styles.ownerIcon}
+                />
+                <Text style={styles.ownerName}>{item.owner.login}</Text>
+              </View>
             </TouchableOpacity>
           }
           keyExtractor={(item) => `${item.id}`}
@@ -67,7 +79,42 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5FCFF',
   },
-  text: {
-    margin: 20,
+  inputWrapper: {
+    padding: 10,
+    flexDirection: 'row',
+    backgroundColor: '#FFF',
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#EEE',
+    padding: 10,
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  searchText: {
+    padding: 10,
+    backgroundColor: '#000',
+    color: '#FFF',
+  },
+  searchResult:{
+    padding: 10,
   }
+  ,
+  ownerData: {
+    flexDirection: 'row',
+  },
+  ownerIcon: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginRight: 5,
+  },
+  ownerName: {
+    fontSize: 14,
+  },
+  itemName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
 });

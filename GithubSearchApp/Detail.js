@@ -12,7 +12,6 @@ import {
 export default class Detail extends React.Component {
 	render() {
 		const { navigation: {state: {params: {item}}} } = this.props;
-		console.log(item)
 		return (
 			<View style={styles.container}>
 				<Text style={styles.repoName}>{item.full_name}</Text>
